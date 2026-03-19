@@ -11,76 +11,122 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 80vh;
+            min-height: 90vh;
             margin: 0;
             touch-action: manipulation;
         }
-        h2 { color: #d4a5b2; margin-bottom: 15px; font-size: 1.5rem; }
+        h2 { color: #d4a5b2; margin-bottom: 10px; font-size: 1.8rem; text-shadow: 1px 1px white; }
         .board {
             display: grid;
-            grid-template-columns: repeat(3, 80px);
-            grid-template-rows: repeat(3, 80px);
-            gap: 10px;
+            grid-template-columns: repeat(3, 85px);
+            grid-template-rows: repeat(3, 85px);
+            gap: 12px;
             background-color: #ffe0e9;
-            padding: 12px;
-            border-radius: 20px;
+            padding: 15px;
+            border-radius: 25px;
+            box-shadow: 0 10px 20px rgba(212, 165, 178, 0.2);
         }
         .cell {
-            width: 80px; height: 80px;
+            width: 85px; height: 85px;
             background-color: white;
-            border-radius: 12px;
+            border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2rem;
+            font-size: 2.2rem;
             color: #ff85a2;
             font-weight: bold;
+            transition: 0.2s;
         }
-        .status { margin-top: 20px; color: #d4a5b2; font-weight: bold; }
+        .status { margin-top: 20px; color: #d4a5b2; font-size: 1.2rem; font-weight: bold; height: 30px; }
         .btn {
-            margin-top: 15px;
-            padding: 10px 25px;
+            margin-top: 20px;
+            padding: 12px 35px;
             background-color: #ff85a2;
             color: white;
             border: none;
-            border-radius: 20px;
+            border-radius: 25px;
             font-size: 1rem;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-    <h2>איקס עיגול 🎀</h2>
-    <div class="board">
-        <div class="cell" onclick="m(0)"></div>
-        <div class="cell" onclick="m(1)"></div>
-        <div class="cell" onclick="m(2)"></div>
-        <div class="cell" onclick="m(3)"></div>
-        <div class="cell" onclick="m(4)"></div>
-        <div class="cell" onclick="m(5)"></div>
-        <div class="cell" onclick="m(6)"></div>
-        <div class="cell" onclick="m(7)"></div>
-        <div class="cell" onclick="m(8)"></div>
+    <h2>משחק נגד המחשב 🎀</h2>
+    <div class="board" id="board">
+        <div class="cell" onclick="playerMove(0)"></div>
+        <div class="cell" onclick="playerMove(1)"></div>
+        <div class="cell" onclick="playerMove(2)"></div>
+        <div class="cell" onclick="playerMove(3)"></div>
+        <div class="cell" onclick="playerMove(4)"></div>
+        <div class="cell" onclick="playerMove(5)"></div>
+        <div class="cell" onclick="playerMove(6)"></div>
+        <div class="cell" onclick="playerMove(7)"></div>
+        <div class="cell" onclick="playerMove(8)"></div>
     </div>
     <div class="status" id="s">תורך! (X)</div>
-    <button class="btn" onclick="r()">משחק חדש ✨</button>
+    <button class="btn" onclick="reset()">משחק חדש ✨</button>
+
     <script>
-        let b = ["","","","","","","","",""], p = "X", a = true;
-        function m(i) {
-            if (b[i] || !a) return;
+        let b = ["","","","","","","","",""], active = true;
+        const status = document.getElementById("s");
+        const cells = document.querySelectorAll('.cell');
+
+        function playerMove(i) {
+            if (b[i] || !active) return;
+            makeMove(i, "X");
+            if (active) {
+                status.innerText = "המחשב חושב... ✨";
+                setTimeout(computerMove, 600);
+            }
+        }
+
+        function computerMove() {
+            if (!active) return;
+            // בינה מלאכותית בסיסית: מנסה לנצח, אז לחסום, אז לבחור באקראי
+            let move = findBestMove("O") || findBestMove("X") || randomMove();
+            if (move !== null) makeMove(move, "O");
+        }
+
+        function makeMove(i, p) {
             b[i] = p;
-            document.querySelectorAll('.cell')[i].innerText = p;
-            if (c()) { document.getElementById("s").innerText = p + " ניצחה! ✨"; a = false; }
-            else if (!b.includes("")) { document.getElementById("s").innerText = "תיקו! 🎀"; a = false; }
-            else { p = p === "X" ? "O" : "X"; document.getElementById("s").innerText = "תור: " + p; }
+            cells[i].innerText = p;
+            if (checkWin(p)) {
+                status.innerText = p === "X" ? "ניצחת! כל הכבוד! 🎀" : "המחשב ניצח... 🦢";
+                active = false;
+            } else if (!b.includes("")) {
+                status.innerText = "תיקו! ✨";
+                active = false;
+            } else {
+                status.innerText = p === "X" ? "תור המחשב..." : "תורך! (X)";
+            }
         }
-        function c() {
-            const w = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-            return w.some(s => b[s[0]] && b[s[0]]===b[s[1]] && b[s[0]]===b[s[2]]);
+
+        function findBestMove(p) {
+            const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            for (let s of wins) {
+                let vals = s.map(i => b[i]);
+                if (vals.filter(v => v === p).length === 2 && vals.filter(v => v === "").length === 1) {
+                    return s[vals.indexOf("")];
+                }
+            }
+            return null;
         }
-        function r() {
-            b = ["","","","","","","","",""]; p = "X"; a = true;
-            document.getElementById("s").innerText = "תורך! (X)";
-            document.querySelectorAll('.cell').forEach(c => c.innerText = "");
+
+        function randomMove() {
+            let avail = b.map((v, i) => v === "" ? i : null).filter(v => v !== null);
+            return avail.length > 0 ? avail[Math.floor(Math.random() * avail.length)] : null;
+        }
+
+        function checkWin(p) {
+            const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            return wins.some(s => s.every(i => b[i] === p));
+        }
+
+        function reset() {
+            b = ["","","","","","","","",""]; active = true;
+            status.innerText = "תורך! (X)";
+            cells.forEach(c => c.innerText = "");
         }
     </script>
 </body>

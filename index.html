@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        body {
+            background-color: #fff5f8;
+            font-family: -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            margin: 0;
+            touch-action: manipulation;
+        }
+        h2 { color: #d4a5b2; margin-bottom: 15px; font-size: 1.5rem; }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 80px);
+            grid-template-rows: repeat(3, 80px);
+            gap: 10px;
+            background-color: #ffe0e9;
+            padding: 12px;
+            border-radius: 20px;
+        }
+        .cell {
+            width: 80px; height: 80px;
+            background-color: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #ff85a2;
+            font-weight: bold;
+        }
+        .status { margin-top: 20px; color: #d4a5b2; font-weight: bold; }
+        .btn {
+            margin-top: 15px;
+            padding: 10px 25px;
+            background-color: #ff85a2;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <h2>איקס עיגול 🎀</h2>
+    <div class="board">
+        <div class="cell" onclick="m(0)"></div>
+        <div class="cell" onclick="m(1)"></div>
+        <div class="cell" onclick="m(2)"></div>
+        <div class="cell" onclick="m(3)"></div>
+        <div class="cell" onclick="m(4)"></div>
+        <div class="cell" onclick="m(5)"></div>
+        <div class="cell" onclick="m(6)"></div>
+        <div class="cell" onclick="m(7)"></div>
+        <div class="cell" onclick="m(8)"></div>
+    </div>
+    <div class="status" id="s">תורך! (X)</div>
+    <button class="btn" onclick="r()">משחק חדש ✨</button>
+    <script>
+        let b = ["","","","","","","","",""], p = "X", a = true;
+        function m(i) {
+            if (b[i] || !a) return;
+            b[i] = p;
+            document.querySelectorAll('.cell')[i].innerText = p;
+            if (c()) { document.getElementById("s").innerText = p + " ניצחה! ✨"; a = false; }
+            else if (!b.includes("")) { document.getElementById("s").innerText = "תיקו! 🎀"; a = false; }
+            else { p = p === "X" ? "O" : "X"; document.getElementById("s").innerText = "תור: " + p; }
+        }
+        function c() {
+            const w = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            return w.some(s => b[s[0]] && b[s[0]]===b[s[1]] && b[s[0]]===b[s[2]]);
+        }
+        function r() {
+            b = ["","","","","","","","",""]; p = "X"; a = true;
+            document.getElementById("s").innerText = "תורך! (X)";
+            document.querySelectorAll('.cell').forEach(c => c.innerText = "");
+        }
+    </script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+[16:24, 19/03/2026] יובי UV: <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -19,7 +19,35 @@
         .board {
             display: grid;
             grid-template-columns: repeat(3, 85px);
-            grid-template-rows: repeat(3, 85px);
+            grid-template-rows…
+[16:29, 19/03/2026] יובי UV: <!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>איקס עיגול נגד המחשב 🎀</title>
+    <style>
+        body {
+            background-color: #fff5f8;
+            font-family: -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            touch-action: manipulation;
+        }
+        h2 { 
+            color: #d4a5b2; 
+            margin-bottom: 20px; 
+            font-size: 2rem; 
+            text-shadow: 1px 1px white; 
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 90px);
+            grid-template-rows: repeat(3, 90px);
             gap: 12px;
             background-color: #ffe0e9;
             padding: 15px;
@@ -27,32 +55,43 @@
             box-shadow: 0 10px 20px rgba(212, 165, 178, 0.2);
         }
         .cell {
-            width: 85px; height: 85px;
+            width: 90px; 
+            height: 90px;
             background-color: white;
             border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.2rem;
+            font-size: 2.5rem;
             color: #ff85a2;
             font-weight: bold;
+            cursor: pointer;
             transition: 0.2s;
         }
-        .status { margin-top: 20px; color: #d4a5b2; font-size: 1.2rem; font-weight: bold; height: 30px; }
+        .status { 
+            margin-top: 25px; 
+            color: #d4a5b2; 
+            font-size: 1.4rem; 
+            font-weight: bold; 
+            height: 30px; 
+        }
         .btn {
-            margin-top: 20px;
+            margin-top: 25px;
             padding: 12px 35px;
             background-color: #ff85a2;
             color: white;
             border: none;
             border-radius: 25px;
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 133, 162, 0.3);
         }
     </style>
 </head>
 <body>
-    <h2>משחק נגד המחשב 🎀</h2>
+    <h2>איקס עיגול 🎀</h2>
+    
     <div class="board" id="board">
         <div class="cell" onclick="playerMove(0)"></div>
         <div class="cell" onclick="playerMove(1)"></div>
@@ -64,33 +103,53 @@
         <div class="cell" onclick="playerMove(7)"></div>
         <div class="cell" onclick="playerMove(8)"></div>
     </div>
+    
     <div class="status" id="s">תורך! (X)</div>
     <button class="btn" onclick="reset()">משחק חדש ✨</button>
 
     <script>
-        let b = ["","","","","","","","",""], active = true;
+        let b = ["","","","","","","","",""];
+        let active = true;
         const status = document.getElementById("s");
         const cells = document.querySelectorAll('.cell');
 
         function playerMove(i) {
-            if (b[i] || !active) return;
+            if (b[i] !== "" || !active) return;
             makeMove(i, "X");
+            
             if (active) {
                 status.innerText = "המחשב חושב... ✨";
-                setTimeout(computerMove, 600);
+                setTimeout(computerMove, 700); // השהייה קטנה כדי שזה ירגיש טבעי
             }
         }
 
         function computerMove() {
             if (!active) return;
-            // בינה מלאכותית בסיסית: מנסה לנצח, אז לחסום, אז לבחור באקראי
-            let move = findBestMove("O") || findBestMove("X") || randomMove();
+            
+            let move = null;
+            // כאן המחשב מחליט אם להיות חכם או לעשות טעות אנושית
+            // 70% סיכוי למהלך חכם, 30% סיכוי למהלך אקראי
+            let isSmart = Math.random() < 0.7;
+
+            if (isSmart) {
+                // קודם מנסה לנצח
+                move = findBestMove("O");
+                // אם אי אפשר לנצח, מנסה לחסום את השחקן
+                if (move === null) move = findBestMove("X");
+            }
+
+            // אם הוא החליט לעשות טעות, או שאין מהלך מיוחד לעשות
+            if (move === null) {
+                move = randomMove();
+            }
+
             if (move !== null) makeMove(move, "O");
         }
 
         function makeMove(i, p) {
             b[i] = p;
             cells[i].innerText = p;
+            
             if (checkWin(p)) {
                 status.innerText = p === "X" ? "ניצחת! כל הכבוד! 🎀" : "המחשב ניצח... 🦢";
                 active = false;
@@ -105,7 +164,7 @@
         function findBestMove(p) {
             const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
             for (let s of wins) {
-                let vals = s.map(i => b[i]);
+                let vals = [b[s[0]], b[s[1]], b[s[2]]];
                 if (vals.filter(v => v === p).length === 2 && vals.filter(v => v === "").length === 1) {
                     return s[vals.indexOf("")];
                 }
@@ -124,7 +183,8 @@
         }
 
         function reset() {
-            b = ["","","","","","","","",""]; active = true;
+            b = ["","","","","","","","",""]; 
+            active = true;
             status.innerText = "תורך! (X)";
             cells.forEach(c => c.innerText = "");
         }

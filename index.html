@@ -1,26 +1,4 @@
-[16:24, 19/03/2026] יובי UV: <!DOCTYPE html>
-<html lang="he" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <style>
-        body {
-            background-color: #fff5f8;
-            font-family: -apple-system, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 90vh;
-            margin: 0;
-            touch-action: manipulation;
-        }
-        h2 { color: #d4a5b2; margin-bottom: 10px; font-size: 1.8rem; text-shadow: 1px 1px white; }
-        .board {
-            display: grid;
-            grid-template-columns: repeat(3, 85px);
-            grid-template-rows…
-[16:29, 19/03/2026] יובי UV: <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -38,12 +16,7 @@
             margin: 0;
             touch-action: manipulation;
         }
-        h2 { 
-            color: #d4a5b2; 
-            margin-bottom: 20px; 
-            font-size: 2rem; 
-            text-shadow: 1px 1px white; 
-        }
+        h2 { color: #d4a5b2; margin-bottom: 20px; font-size: 2rem; text-shadow: 1px 1px white; }
         .board {
             display: grid;
             grid-template-columns: repeat(3, 90px);
@@ -55,8 +28,7 @@
             box-shadow: 0 10px 20px rgba(212, 165, 178, 0.2);
         }
         .cell {
-            width: 90px; 
-            height: 90px;
+            width: 90px; height: 90px;
             background-color: white;
             border-radius: 15px;
             display: flex;
@@ -68,13 +40,7 @@
             cursor: pointer;
             transition: 0.2s;
         }
-        .status { 
-            margin-top: 25px; 
-            color: #d4a5b2; 
-            font-size: 1.4rem; 
-            font-weight: bold; 
-            height: 30px; 
-        }
+        .status { margin-top: 25px; color: #d4a5b2; font-size: 1.4rem; font-weight: bold; height: 30px; }
         .btn {
             margin-top: 25px;
             padding: 12px 35px;
@@ -110,16 +76,21 @@
     <script>
         let b = ["","","","","","","","",""];
         let active = true;
+        let isComputerThinking = false; // הנעילה החדשה שלנו!
+        
         const status = document.getElementById("s");
         const cells = document.querySelectorAll('.cell');
 
         function playerMove(i) {
-            if (b[i] !== "" || !active) return;
+            // אם המשבצת תפוסה, או שהמשחק נגמר, או שהמחשב חושב עכשיו - אל תעשה כלום!
+            if (b[i] !== "" || !active || isComputerThinking) return;
+            
             makeMove(i, "X");
             
             if (active) {
+                isComputerThinking = true; // נועלים את הלוח
                 status.innerText = "המחשב חושב... ✨";
-                setTimeout(computerMove, 700); // השהייה קטנה כדי שזה ירגיש טבעי
+                setTimeout(computerMove, 800); // מחכים קצת ואז תור המחשב
             }
         }
 
@@ -127,23 +98,20 @@
             if (!active) return;
             
             let move = null;
-            // כאן המחשב מחליט אם להיות חכם או לעשות טעות אנושית
-            // 70% סיכוי למהלך חכם, 30% סיכוי למהלך אקראי
-            let isSmart = Math.random() < 0.7;
+            let isSmart = Math.random() < 0.7; // 70% סיכוי שהמחשב ישחק חכם
 
             if (isSmart) {
-                // קודם מנסה לנצח
                 move = findBestMove("O");
-                // אם אי אפשר לנצח, מנסה לחסום את השחקן
                 if (move === null) move = findBestMove("X");
             }
 
-            // אם הוא החליט לעשות טעות, או שאין מהלך מיוחד לעשות
             if (move === null) {
                 move = randomMove();
             }
 
             if (move !== null) makeMove(move, "O");
+            
+            isComputerThinking = false; // המחשב סיים, פותחים את הנעילה לתור שלך!
         }
 
         function makeMove(i, p) {
@@ -157,7 +125,9 @@
                 status.innerText = "תיקו! ✨";
                 active = false;
             } else {
-                status.innerText = p === "X" ? "תור המחשב..." : "תורך! (X)";
+                if (p === "O") {
+                    status.innerText = "תורך! (X)";
+                }
             }
         }
 
@@ -185,6 +155,7 @@
         function reset() {
             b = ["","","","","","","","",""]; 
             active = true;
+            isComputerThinking = false;
             status.innerText = "תורך! (X)";
             cells.forEach(c => c.innerText = "");
         }
